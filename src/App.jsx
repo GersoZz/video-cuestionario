@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 
-import VideoCard from "./components/VideoCard";
+import ListVideoCard from "./components/ListVideoCard";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
           sx={{ mb: 10 }}
           item
         >
-          <VideoCard />
+          <ListVideoCard></ListVideoCard>
         </Grid>
         <Grid display={"flex"} justifyContent={"flex-end"} item xs={12}>
           <Button
