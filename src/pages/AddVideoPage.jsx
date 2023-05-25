@@ -24,10 +24,10 @@ import red from "@mui/material/colors/red";
 
 export default function AddVideoPage() {
   const { id: videoId } = useParams();
-  const { questions } = useContext(QuestionContext);
+  const { questions, addAnswer } = useContext(QuestionContext);
   const navigate = useNavigate();
-  console.log({ videoId });
-  console.log({ questions });
+  // console.log({ videoId });
+  // console.log({ questions });
 
   const [answer, setAnswer] = useState(questions[parseInt(videoId)]);
   const [isRecorded, setIsRecorded] = useState(false);
@@ -152,6 +152,15 @@ export default function AddVideoPage() {
     }
   }, [secondsRecording]);
 
+  useEffect(() => {
+    console.log("params", videoId);
+    const question = questions[parseInt(videoId)];
+
+    if (question) {
+      setAnswer(question);
+    }
+  }, [videoId, questions]);
+
   const _handlePrevPage = () => {
     mediaRecorderRef.current.stop();
     clearInterval(timer);
@@ -184,9 +193,9 @@ export default function AddVideoPage() {
   };
 
   const _handleVideoSubmit = () => {
-    console.log(answer);
+    console.log("answer", answer);
 
-    //   addAnswer(video);
+    addAnswer(answer);
     //   navigate("/");
   };
 

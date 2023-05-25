@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
-export default function VideoCard({ question, ide }) {
+export default function VideoCard({ question, ide, videoSrc }) {
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -18,7 +18,7 @@ export default function VideoCard({ question, ide }) {
         muted
         loop
         controls
-        src={null}
+        src={videoSrc}
         sx={{ minWidth: 200, minHeight: 300, backgroundColor: "black" }}
       />
       <CardContent sx={{ backgroundColor: "gray" }}>
