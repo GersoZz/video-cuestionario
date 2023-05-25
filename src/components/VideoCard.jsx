@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import CardContent from "@mui/material/CardContent";
@@ -7,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
-export default function VideoCard({ question }) {
+export default function VideoCard({ question, ide }) {
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -34,12 +36,14 @@ export default function VideoCard({ question }) {
           >
             {question}
           </Typography>
-          <IconButton
-            aria-label="play/pause"
-            sx={{ backgroundColor: "white", maxHeight: 38, maxWidth: 38 }}
-          >
-            <PlayArrowIcon />
-          </IconButton>
+          <Link to={`/add-video/${ide}`}>
+            <IconButton
+              aria-label="play/pause"
+              sx={{ backgroundColor: "white", maxHeight: 38, maxWidth: 38 }}
+            >
+              <PlayArrowIcon />
+            </IconButton>
+          </Link>
         </Box>
       </CardContent>
     </Card>
