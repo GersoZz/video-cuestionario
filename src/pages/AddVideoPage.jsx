@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -17,6 +17,11 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 import QuestionContext from "../context/Pregunta/QuestionContext";
 
+import StopIcon from "@mui/icons-material/Stop";
+
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import red from "@mui/material/colors/red";
+
 export default function AddVideoPage() {
   const { id: videoId } = useParams();
   const { questions } = useContext(QuestionContext);
@@ -24,7 +29,137 @@ export default function AddVideoPage() {
   console.log({ videoId });
   console.log({ questions });
 
+  const [answer, setAnswer] = useState(questions[parseInt(videoId)]);
+  const [isRecorded, setIsRecorded] = useState(false);
+
+  const [isRecording, setIsRecording] = useState(false);
+
+  const [secondsRecording, setSecondsRecording] = useState(0);
+
+  const [timer, setTimer] = useState(null);
+  const [timerFormat, setTimerFormat] = useState("0:00");
+  const [isRecordIconRed, setIsRecordIconRed] = useState(true);
+
+  const [videoURL, setVideoURL] = useState(null);
+
+  const videoRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+
+  const _handleDataAvailable = ({ data }) => {
+    if (data.size > 0) {
+      const blob = new Blob([data], { type: "video/webm" });
+      const blobURL = URL.createObjectURL(blob);
+      console.log(blobURL);
+      setAnswer((prev) => ({
+        ...prev,
+        video: blobURL,
+      }));
+
+      setVideoURL(blobURL);
+    }
+  };
+
+  const _handlePlayRecording = () => {
+    setIsRecorded(false);
+
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        videoRef.current.srcObject = stream;
+        mediaRecorderRef.current = new MediaRecorder(stream);
+
+        mediaRecorderRef.current.addEventListener(
+          "dataavailable",
+          _handleDataAvailable
+        );
+
+        if (
+          mediaRecorderRef.current &&
+          mediaRecorderRef.current.state === "inactive"
+        ) {
+          mediaRecorderRef.current.start();
+
+          setVideoURL(null);
+          setIsRecording(true);
+
+          setTimerFormat("0:00");
+          setTimer(
+            setInterval(() => {
+              setIsRecordIconRed((prev) => !prev);
+              setSecondsRecording((prev) => prev + 1);
+            }, 1000)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("No se pudo encontrar la camara: ", error);
+      });
+  };
+
+  const _handleStopRecording = () => {
+    console.log(mediaRecorderRef.current);
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      console.log("stop");
+      clearInterval(timer);
+      setIsRecorded(true);
+      setSecondsRecording(0);
+      setIsRecordIconRed(true);
+    }
+  };
+
+  useEffect(() => {
+    /*     navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        videoRef.current.srcObject = stream;
+        mediaRecorderRef.current = new MediaRecorder(stream);
+
+          mediaRecorderRef.current.addEventListener(
+            "dataavailable",
+            _handleDataAvailable
+          );
+      })
+      .catch((error) => {
+        console.error("No se pudo encontrar la camara: ", error);
+      }); */
+
+    return () => {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state === "recording"
+      ) {
+        mediaRecorderRef.current.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (secondsRecording !== 0) {
+      const minutes = Math.floor(secondsRecording / 60);
+      const seconds = secondsRecording % 60;
+      const secondsFormatted = seconds < 10 ? "0" + seconds : seconds;
+
+      const secondsRecordingFormatted = `${minutes}:${secondsFormatted}`;
+      setTimerFormat(secondsRecordingFormatted);
+    }
+    if (secondsRecording > 119) {
+      _handleStopRecording();
+    }
+  }, [secondsRecording]);
+
   const _handlePrevPage = () => {
+    mediaRecorderRef.current.stop();
+    clearInterval(timer);
+    setSecondsRecording(0);
+    setIsRecordIconRed(true);
+    setIsRecorded(false);
+
+    setTimerFormat("00:0");
     navigate(
       `/add-video/${
         parseInt(videoId) === 0 ? questions.length - 1 : parseInt(videoId) - 1
@@ -33,11 +168,26 @@ export default function AddVideoPage() {
   };
 
   const _handleNextPage = () => {
+    mediaRecorderRef.current.stop();
+    clearInterval(timer);
+    setSecondsRecording(0);
+    setIsRecordIconRed(true);
+    setIsRecorded(false);
+
+    setTimerFormat("00:0");
+
     navigate(
       `/add-video/${
         parseInt(videoId) === questions.length - 1 ? "0" : parseInt(videoId) + 1
       }`
     );
+  };
+
+  const _handleVideoSubmit = () => {
+    console.log(answer);
+
+    //   addAnswer(video);
+    //   navigate("/");
   };
 
   return (
@@ -57,7 +207,7 @@ export default function AddVideoPage() {
         </Grid>
         <Grid
           display={"flex"}
-          justifyContent={"flex-start"}
+          justifyContent={"space-between"}
           item
           xs={12}
           sx={{ mb: 2 }}
@@ -67,6 +217,30 @@ export default function AddVideoPage() {
               Volver
             </Button>
           </Link>
+          <Typography
+            variant="h6"
+            sx={{ fontSize: 20 }}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            Presiona el símbolo de Play para comenzar
+          </Typography>
+
+          <Typography
+            variant="h6"
+            component="div"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {timerFormat}/2:00
+            {isRecordIconRed ? (
+              <FiberManualRecordIcon sx={{ color: red[500] }} />
+            ) : (
+              <FiberManualRecordIcon color="disabled" />
+            )}
+          </Typography>
         </Grid>
         <Grid
           display={"flex"}
@@ -76,15 +250,32 @@ export default function AddVideoPage() {
           item
         >
           <Card sx={{ maxWidth: 700 }}>
-            <CardMedia
-              component="video"
-              autoPlay
-              muted
-              loop
-              controls
-              src={null}
-              sx={{ minWidth: 200, minHeight: 500, backgroundColor: "black" }}
-            />
+            {isRecorded ? (
+              <CardMedia
+                component="video"
+                autoPlay
+                muted
+                loop
+                controls
+                src={videoURL}
+                sx={{ minWidth: 200, minHeight: 500, backgroundColor: "black" }}
+              />
+            ) : (
+              ""
+            )}
+            {isRecorded ? (
+              ""
+            ) : (
+              <CardMedia
+                ref={videoRef}
+                component="video"
+                autoPlay
+                muted
+                //   controls
+                src={null}
+                sx={{ minWidth: 200, minHeight: 500, backgroundColor: "black" }}
+              />
+            )}
             <CardContent sx={{ backgroundColor: "gray" }}>
               <Box display={"flex"}>
                 <Typography
@@ -100,16 +291,32 @@ export default function AddVideoPage() {
                 >
                   {questions[parseInt(videoId)].pregunta}
                 </Typography>
-                <IconButton
-                  aria-label="play/pause"
-                  sx={{
-                    backgroundColor: "white",
-                    maxHeight: 38,
-                    maxWidth: 38,
-                  }}
-                >
-                  <PlayArrowIcon />
-                </IconButton>
+
+                {secondsRecording === 0 ? (
+                  <IconButton
+                    onClick={_handlePlayRecording}
+                    aria-label="play"
+                    sx={{
+                      backgroundColor: "white",
+                      maxHeight: 38,
+                      maxWidth: 38,
+                    }}
+                  >
+                    <PlayArrowIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    onClick={_handleStopRecording}
+                    aria-label="stop"
+                    sx={{
+                      backgroundColor: "white",
+                      maxHeight: 38,
+                      maxWidth: 38,
+                    }}
+                  >
+                    <StopIcon />
+                  </IconButton>
+                )}
               </Box>
             </CardContent>
           </Card>
@@ -119,13 +326,26 @@ export default function AddVideoPage() {
             onClick={_handlePrevPage}
             variant="contained"
             size="medium"
+            disabled={isRecording}
             sx={{ p: 1.5, pl: 5, pr: 5 }}
           >
             Anterior
           </Button>
+
+          <Button
+            onClick={_handleVideoSubmit}
+            variant="contained"
+            size="medium"
+            sx={{ p: 1.5, pl: 5, pr: 5 }}
+            disabled={!isRecorded}
+          >
+            Subir Video
+          </Button>
+
           <Button
             onClick={_handleNextPage}
             variant="contained"
+            disabled={isRecording}
             size="medium"
             sx={{ p: 1.5, pl: 5, pr: 5 }}
           >
