@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import IconButton from "@mui/material/IconButton";
+import Modal from "@mui/material/Modal";
 
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
@@ -21,6 +22,18 @@ import StopIcon from "@mui/icons-material/Stop";
 
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import red from "@mui/material/colors/red";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 export default function AddVideoPage() {
   const { id: videoId } = useParams();
@@ -41,6 +54,9 @@ export default function AddVideoPage() {
   const [isRecordIconRed, setIsRecordIconRed] = useState(true);
 
   const [videoURL, setVideoURL] = useState(null);
+
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -197,6 +213,7 @@ export default function AddVideoPage() {
 
     addAnswer(answer);
     //   navigate("/");
+    setOpen(true);
   };
 
   return (
@@ -226,16 +243,26 @@ export default function AddVideoPage() {
               Volver
             </Button>
           </Link>
-          <Typography
-            variant="h6"
-            sx={{ fontSize: 20 }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            Presiona el símbolo de Play para comenzar
-          </Typography>
-
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: 20 }}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              Presiona el símbolo de Play para comenzar
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: 20 }}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              Recuerda confirmar tu video
+            </Typography>
+          </Box>
           <Typography
             variant="h6"
             component="div"
@@ -330,6 +357,28 @@ export default function AddVideoPage() {
             </CardContent>
           </Card>
         </Grid>
+        <Grid item>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Se guardó su respuesta con éxito
+              </Typography>
+
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Cerrar
+              </Button>
+            </Box>
+          </Modal>
+        </Grid>
         <Grid display={"flex"} justifyContent={"space-between"} item xs={12}>
           <Button
             onClick={_handlePrevPage}
@@ -348,7 +397,7 @@ export default function AddVideoPage() {
             sx={{ p: 1.5, pl: 5, pr: 5 }}
             disabled={!isRecorded}
           >
-            Subir Video
+            Confirmar Video
           </Button>
 
           <Button

@@ -1,13 +1,39 @@
+import { useState, useContext } from "react";
+
 import { Link } from "react-router-dom";
 
 import ListVideoCard from "../components/ListVideoCard";
+import QuestionContext from "../context/Pregunta/QuestionContext";
 
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 export default function HomePage() {
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
+
+  const { questions } = useContext(QuestionContext);
+
+  const _handleAnswersSubmit = () => {
+    setOpen(true);
+  };
+
   return (
     <Container sx={{ mt: 10 }}>
       <Grid container>
@@ -45,11 +71,34 @@ export default function HomePage() {
         >
           <ListVideoCard></ListVideoCard>
         </Grid>
+        <Grid item>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                ¡Felicidades! Se enviarón sus respuestas con éxito
+              </Typography>
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Cerrar
+              </Button>
+            </Box>
+          </Modal>
+        </Grid>
         <Grid display={"flex"} justifyContent={"flex-end"} item xs={12}>
           <Button
+            onClick={_handleAnswersSubmit}
             variant="contained"
             size="large"
             sx={{ p: 1.5, pl: 5, pr: 5 }}
+            disabled={!questions.every((el) => el.video)}
           >
             Enviar
           </Button>
