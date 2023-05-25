@@ -5,10 +5,14 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import { Box, TextField } from "@mui/material";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import QuestionContext from "../context/Pregunta/QuestionContext";
+
 export default function AddQuestionPage() {
+  const { addQuestion } = useContext(QuestionContext);
+
   const navigate = useNavigate();
 
   const [question, setQuestion] = useState("");
@@ -37,6 +41,7 @@ export default function AddQuestionPage() {
       error: false,
       message: "",
     });
+    addQuestion(question);
     navigate("/");
   };
 

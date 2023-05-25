@@ -1,8 +1,13 @@
 import VideoCard from "./VideoCard";
-import questions from "../data/questions-mock.js";
+
+import QuestionContext from "../context/Pregunta/QuestionContext";
+
 import Grid from "@mui/material/Grid";
+import { useContext } from "react";
 
 export default function ListVideoCard() {
+  const { questions } = useContext(QuestionContext);
+  console.log({ questions });
   return (
     <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
       {questions.map((question) => (
