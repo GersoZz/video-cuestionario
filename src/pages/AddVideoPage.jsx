@@ -178,7 +178,7 @@ export default function AddVideoPage() {
   }, [videoId, questions]);
 
   const _handlePrevPage = () => {
-    mediaRecorderRef.current.stop();
+    // mediaRecorderRef.current.stop();
     clearInterval(timer);
     setSecondsRecording(0);
     setIsRecordIconRed(true);
@@ -193,7 +193,7 @@ export default function AddVideoPage() {
   };
 
   const _handleNextPage = () => {
-    mediaRecorderRef.current.stop();
+    // mediaRecorderRef.current.stop();
     clearInterval(timer);
     setSecondsRecording(0);
     setIsRecordIconRed(true);
