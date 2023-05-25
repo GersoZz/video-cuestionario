@@ -66,6 +66,8 @@ export default function AddVideoPage() {
   // para saber si se completaron todas las preguntas
   const [isCompleted, setIsCompleted] = useState(false);
 
+  const [initializeCamera, setInitializeCamera] = useState(false);
+
   // para abrir el modal
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
@@ -90,6 +92,7 @@ export default function AddVideoPage() {
   const _handlePlayRecording = () => {
     setIsRecorded(false);
 
+    if(!initializeCamera){
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
@@ -122,6 +125,28 @@ export default function AddVideoPage() {
       .catch((error) => {
         console.error("No se pudo encontrar la camara: ", error);
       });
+
+    }else{
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state === "inactive"
+      ) {
+        mediaRecorderRef.current.start();
+
+        setVideoURL(null);
+        setIsRecording(true);
+
+        setTimerFormat("0:00");
+        setTimer(
+          setInterval(() => {
+            setIsRecordIconRed((prev) => !prev);
+            setSecondsRecording((prev) => prev + 1);
+          }, 1000)
+        );
+      }
+    }
+
+
   };
 
   const _handleStopRecording = () => {
@@ -130,7 +155,9 @@ export default function AddVideoPage() {
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
     ) {
+
       mediaRecorderRef.current.stop();
+      setInitializeCamera(false);
       setIsRecording(false);
       console.log("stop");
       clearInterval(timer);
@@ -141,20 +168,22 @@ export default function AddVideoPage() {
   };
 
   useEffect(() => {
-    /*     navigator.mediaDevices
+    navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         videoRef.current.srcObject = stream;
         mediaRecorderRef.current = new MediaRecorder(stream);
 
-          mediaRecorderRef.current.addEventListener(
-            "dataavailable",
-            _handleDataAvailable
-          );
+        mediaRecorderRef.current.addEventListener(
+          "dataavailable",
+          _handleDataAvailable
+        );
+
+        setInitializeCamera(true);
       })
       .catch((error) => {
         console.error("No se pudo encontrar la camara: ", error);
-      }); */
+      });
 
     return () => {
       if (
