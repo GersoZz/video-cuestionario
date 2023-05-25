@@ -42,21 +42,31 @@ export default function AddVideoPage() {
   // console.log({ videoId });
   // console.log({ questions });
 
+  // la respuesta sobre la que se va trabajar
   const [answer, setAnswer] = useState(questions[parseInt(videoId)]);
+  // para saber si ya se grabo
   const [isRecorded, setIsRecorded] = useState(false);
 
+  //para saber si se esta grabando
   const [isRecording, setIsRecording] = useState(false);
 
+  // para saber cuantos segundos va grabando
   const [secondsRecording, setSecondsRecording] = useState(0);
 
+  // establece un cronometro con un setInterval
   const [timer, setTimer] = useState(null);
+  // para formatear el texto que representa los segundos que se va grabando
   const [timerFormat, setTimerFormat] = useState("0:00");
+  // para que el circulo de grabacion se pinte de rojo
   const [isRecordIconRed, setIsRecordIconRed] = useState(true);
 
+  // para poder visualizar lo que se ha grabado
   const [videoURL, setVideoURL] = useState(null);
 
+  // para saber si se completaron todas las preguntas
   const [isCompleted, setIsCompleted] = useState(false);
 
+  // para abrir el modal
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
 
@@ -187,11 +197,31 @@ export default function AddVideoPage() {
     setIsRecorded(false);
 
     setTimerFormat("00:0");
-    navigate(
-      `/add-video/${
-        parseInt(videoId) === 0 ? questions.length - 1 : parseInt(videoId) - 1
-      }`
-    );
+
+    // no valido que no haya preguntas sin resolver porque en ese caso el boton siguiente se oculta
+    const questionUnresolveds = questions.filter((e) => {
+      return !e.video;
+    });
+
+    const idsUnresolveds = questionUnresolveds.map((e) => e.id);
+
+    console.log("idsUnresolveds", idsUnresolveds);
+
+    let nextPageUnresolved;
+
+    for (let i = idsUnresolveds.length - 1; i > -1; i--) {
+      if (idsUnresolveds[i] < videoId) {
+        nextPageUnresolved = idsUnresolveds[i];
+        break;
+      }
+    }
+
+    //significa que hay preguntas sin resolver y que estan adelante
+    if (nextPageUnresolved === undefined) {
+      nextPageUnresolved = idsUnresolveds[idsUnresolveds.length - 1];
+    }
+
+    navigate(`/add-video/${nextPageUnresolved}`);
   };
 
   const _handleNextPage = () => {
@@ -203,10 +233,32 @@ export default function AddVideoPage() {
 
     setTimerFormat("00:0");
 
+    // no valido que no haya preguntas sin resolver porque en ese caso el boton anterior se oculta
+    const questionUnresolveds = questions.filter((e) => {
+      return !e.video;
+    });
+
+    const idsUnresolveds = questionUnresolveds.map((e) => e.id);
+
+    console.log("idsUnresolveds", idsUnresolveds);
+
+    let nextPageUnresolved;
+
+    for (let i = 0; i < idsUnresolveds.length; i++) {
+      if (idsUnresolveds[i] > videoId) {
+        nextPageUnresolved = idsUnresolveds[i];
+        break;
+      }
+    }
+
+    //significa que hay preguntas sin resolver y que estan atras
+    if (nextPageUnresolved === undefined) {
+      nextPageUnresolved = idsUnresolveds[0];
+    }
     const nextPage =
       parseInt(videoId) === questions.length - 1 ? "0" : parseInt(videoId) + 1;
 
-    navigate(`/add-video/${nextPage}`);
+    navigate(`/add-video/${nextPageUnresolved}`);
   };
 
   const _handleVideoSubmit = () => {
