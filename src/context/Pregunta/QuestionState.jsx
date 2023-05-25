@@ -2,10 +2,11 @@ import React, { useReducer } from "react";
 
 import QuestionContext from "./QuestionContext";
 import QuestionReducer from "./QuestionReducer";
-import questions from "../../data/questions-mock";
+
+import questionsMock from "../../data/questions-mock";
 
 const QuestionState = (props) => {
-  const [state, dispatch] = useReducer(QuestionReducer, questions);
+  const [state, dispatch] = useReducer(QuestionReducer, questionsMock);
 
   const addQuestion = (question) => {
     const newQuestion = {

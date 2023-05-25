@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import ListVideoCard from "../components/ListVideoCard";
 
 import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
 
 export default function HomePage() {
   return (
