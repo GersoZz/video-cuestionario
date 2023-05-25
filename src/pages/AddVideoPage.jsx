@@ -217,7 +217,7 @@ export default function AddVideoPage() {
   };
 
   return (
-    <Container sx={{ mt: 10 }}>
+    <Container sx={{ mt: 5 }}>
       <Grid container>
         <Grid
           item

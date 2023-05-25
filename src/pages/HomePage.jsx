@@ -26,16 +26,18 @@ const style = {
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const handleClose = () => setOpen(false);
 
   const { questions } = useContext(QuestionContext);
 
   const _handleAnswersSubmit = () => {
     setOpen(true);
+    setIsCompleted(true);
   };
 
   return (
-    <Container sx={{ mt: 10 }}>
+    <Container sx={{ mt: 5 }}>
       <Grid container>
         <Grid
           item
@@ -49,6 +51,22 @@ export default function HomePage() {
             Video Cuestionario
           </Typography>
         </Grid>
+        {isCompleted ? (
+          <Grid
+            item
+            xs={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ mb: 5, color: "SeaGreen" }}
+          >
+            <Typography variant="h1" sx={{ fontSize: 50 }}>
+              Respuestas envíadas
+            </Typography>
+          </Grid>
+        ) : (
+          ""
+        )}
         <Grid
           display={"flex"}
           justifyContent={"flex-start"}
@@ -92,7 +110,29 @@ export default function HomePage() {
             </Box>
           </Modal>
         </Grid>
-        <Grid display={"flex"} justifyContent={"flex-end"} item xs={12}>
+        <Grid display={"flex"} justifyContent={"space-between"} item xs={12}>
+          <Box>
+            <Typography variant="h1" sx={{ fontSize: 20 }}>
+              Progreso:
+              {questions.reduce((accumulator, currentValue) => {
+                if (currentValue.video) {
+                  return accumulator + 1;
+                }
+                return accumulator;
+              }, 0)}
+              /{questions.length}
+            </Typography>
+            <Typography variant="h1" sx={{ fontSize: 20 }}>
+              {questions.reduce((accumulator, currentValue) => {
+                if (currentValue.video) {
+                  return accumulator + 1;
+                }
+                return accumulator;
+              }, 0) === questions.length
+                ? "Preguntas Completas"
+                : "Completa las preguntas para enviar."}
+            </Typography>
+          </Box>
           <Button
             onClick={_handleAnswersSubmit}
             variant="contained"
