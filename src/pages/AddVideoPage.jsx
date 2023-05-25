@@ -55,6 +55,8 @@ export default function AddVideoPage() {
 
   const [videoURL, setVideoURL] = useState(null);
 
+  const [isCompleted, setIsCompleted] = useState(false);
+
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
 
@@ -201,11 +203,10 @@ export default function AddVideoPage() {
 
     setTimerFormat("00:0");
 
-    navigate(
-      `/add-video/${
-        parseInt(videoId) === questions.length - 1 ? "0" : parseInt(videoId) + 1
-      }`
-    );
+    const nextPage =
+      parseInt(videoId) === questions.length - 1 ? "0" : parseInt(videoId) + 1;
+
+    navigate(`/add-video/${nextPage}`);
   };
 
   const _handleVideoSubmit = () => {
@@ -214,6 +215,25 @@ export default function AddVideoPage() {
     addAnswer(answer);
     //   navigate("/");
     setOpen(true);
+
+    const questionUnresolveds = questions.filter((e) => {
+      return !e.video;
+    });
+
+    const idsUnresolveds = questionUnresolveds.map((e) => e.id);
+    console.log(idsUnresolveds); //todos los que no tienen respta xd
+
+    if (idsUnresolveds.length === 1) {
+      if (idsUnresolveds.includes(parseInt(videoId))) {
+        setIsCompleted(true);
+        console.log("completo!");
+      }
+    }
+
+    if (idsUnresolveds.length === 0) {
+      setIsCompleted(true);
+      console.log("completo!");
+    }
   };
 
   return (
@@ -380,35 +400,55 @@ export default function AddVideoPage() {
           </Modal>
         </Grid>
         <Grid display={"flex"} justifyContent={"space-between"} item xs={12}>
-          <Button
-            onClick={_handlePrevPage}
-            variant="contained"
-            size="medium"
-            disabled={isRecording}
-            sx={{ p: 1.5, pl: 5, pr: 5 }}
-          >
-            Anterior
-          </Button>
-
-          <Button
-            onClick={_handleVideoSubmit}
-            variant="contained"
-            size="medium"
-            sx={{ p: 1.5, pl: 5, pr: 5 }}
-            disabled={!isRecorded}
-          >
-            Confirmar Video
-          </Button>
-
-          <Button
-            onClick={_handleNextPage}
-            variant="contained"
-            disabled={isRecording}
-            size="medium"
-            sx={{ p: 1.5, pl: 5, pr: 5 }}
-          >
-            Siguiente
-          </Button>
+          {isCompleted ? (
+            <>
+              {" "}
+              <Typography id="modal-modal-title" variant="h6" component="h6">
+                Respuestas Completas
+              </Typography>
+              <Link to="/">
+                <Button
+                  variant="contained"
+                  size="medium"
+                  disabled={isRecording}
+                  sx={{ p: 1.5, pl: 5, pr: 5 }}
+                >
+                  Inicio
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              {" "}
+              <Button
+                onClick={_handlePrevPage}
+                variant="contained"
+                size="medium"
+                disabled={isRecording}
+                sx={{ p: 1.5, pl: 5, pr: 5 }}
+              >
+                Anterior
+              </Button>
+              <Button
+                onClick={_handleVideoSubmit}
+                variant="contained"
+                size="medium"
+                sx={{ p: 1.5, pl: 5, pr: 5 }}
+                disabled={!isRecorded}
+              >
+                Confirmar Video
+              </Button>
+              <Button
+                onClick={_handleNextPage}
+                variant="contained"
+                disabled={isRecording}
+                size="medium"
+                sx={{ p: 1.5, pl: 5, pr: 5 }}
+              >
+                Siguiente
+              </Button>
+            </>
+          )}
         </Grid>
       </Grid>
     </Container>
